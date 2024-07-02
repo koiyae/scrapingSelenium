@@ -1,14 +1,9 @@
 import sqlite3
+from slugify import slugify
 from selenium import webdriver
 from unidecode import unidecode
 from selenium.webdriver.common.by import By
 
-
-def transform_author_name(author_name):
-    author_name_normalized = unidecode(author_name).lower()
-    author_slug = ''.join(c if c.isalnum() or (c == ' ' or c == '-') else '' for c in author_name_normalized)
-    author_slug = author_slug.replace(' ', '-')
-    return author_slug
 def scraping():
     lista = list(range(1, 11))
     browser = webdriver.Firefox()
@@ -26,7 +21,7 @@ def scraping():
                 for passage, author in zip(passages, authors):
                     passage_text = passage.text
                     author_text = author.text
-                    author_slug = transform_author_name(author_text)
+                    author_slug = slugify(author_text, replacements=[[' ', '-'], ['.', '']])
                     cur.execute("INSERT INTO scraping (passage, author) VALUES (?, ?)", (passage_text, author_slug))
         con.commit()
     finally:
